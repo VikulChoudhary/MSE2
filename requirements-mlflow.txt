@@ -1,0 +1,3 @@
+-r requirements.txt
+# Optional external experiment tracking; local SQLite tracking works without this.
+mlflow>=2.14,<4

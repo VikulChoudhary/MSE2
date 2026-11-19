@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HELIOS / Control Center</title>
+  <style>
+    :root{color-scheme:dark;--bg:#080d18;--panel:#111b2b;--panel2:#162338;--line:#27374d;--txt:#edf4fd;--muted:#9eb0c5;--sun:#ffbd5b;--aqua:#75dbd4;--rose:#ff8e9b}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 90% 0%,#182b40 0%,var(--bg) 42%);color:var(--txt);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+    .app{max-width:1280px;margin:0 auto;padding:28px 24px 70px}.top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;border-bottom:1px solid var(--line);padding-bottom:22px}
+    .brand{display:flex;align-items:center;gap:15px}.sun{display:grid;place-items:center;width:57px;height:57px;border-radius:50%;font-size:30px;background:#47341c;box-shadow:0 0 35px #ffb44a33}
+    .brand strong{font-size:26px;letter-spacing:.22em;line-height:1}.tag{color:var(--muted);font-size:12px;letter-spacing:.09em;margin-top:6px}.online{border:1px solid var(--line);border-radius:25px;padding:8px 14px;color:var(--muted)}
+    h1{font-size:30px;line-height:1.1;margin:35px 0 5px;font-weight:700}h2{font-size:16px;font-weight:650;margin:0 0 16px}.subtitle{color:var(--muted);margin:0 0 28px}
+    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.card{background:linear-gradient(150deg,var(--panel),#0d1624);border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0}
+    .metric-label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.09em}.big{font-size:30px;font-weight:750;margin:10px 0 2px;letter-spacing:-.03em}.hint{color:var(--muted);font-size:12px}
+    .main{display:grid;grid-template-columns:1.45fr 1fr;gap:14px;margin-top:14px}.stack{display:grid;gap:14px;align-content:start}.row{display:flex;justify-content:space-between;align-items:center;gap:12px}.mini{font-size:12px;color:var(--muted)}
+    .barrow{display:grid;grid-template-columns:135px 1fr 58px;align-items:center;gap:10px;margin:13px 0;font-size:12px}.barbg{background:#243247;height:10px;border-radius:10px;overflow:hidden}.bar{background:linear-gradient(90deg,#ffab54,#ffe3a0);height:100%;border-radius:10px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}input{width:100%;background:#0b1422;color:var(--txt);border:1px solid #34445b;border-radius:8px;padding:11px 12px;font:inherit}input:focus{outline:1px solid var(--sun)}
+    button{background:var(--sun);border:0;border-radius:9px;padding:11px 14px;font-weight:700;color:#231706;cursor:pointer;font:inherit}button:hover{filter:brightness(1.08)}button:disabled{opacity:.5;cursor:progress}.secondary{background:#23374c;color:var(--txt);border:1px solid #345069}
+    .actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}.log{max-height:300px;overflow:auto;font-size:13px}.entry{border-top:1px solid var(--line);padding:12px 0}.badge{display:inline-block;border-radius:20px;padding:3px 9px;background:#1b3a37;color:var(--aqua);font-size:12px}.badge.alert{background:#482b32;color:#ff9ea6}.empty{color:var(--muted);font-size:13px}.rule{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+    #toast{position:fixed;bottom:20px;right:24px;max-width:min(480px,90vw);background:#253a4c;border:1px solid #507086;padding:13px 18px;border-radius:10px;display:none;box-shadow:0 8px 40px #0009;overflow-wrap:anywhere}.footer{color:var(--muted);font-size:12px;margin-top:26px}
+    @media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.main{grid-template-columns:1fr}}@media(max-width:500px){.app{padding:18px 12px}.big{font-size:25px}.card{padding:15px}.barrow{grid-template-columns:110px 1fr 42px}.grid2{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="top"><div class="brand"><span class="sun" aria-hidden="true">☀</span><div><strong>HELIOS</strong><div class="tag">DETECT · DIAGNOSE · RECOVER · VERIFY</div></div></div><div class="online" id="serverStatus">● Checking system...</div></header>
+  <h1>ML Control Center</h1><p class="subtitle">Autonomous health monitoring, safe model deployment, and incident recovery. Synthetic credit-card fraud detection demo.</p>
+  <section class="kpis" aria-label="System metrics">
+    <div class="card"><div class="metric-label">Champion version</div><div class="big" id="version">…</div><div class="hint">Active production model</div></div>
+    <div class="card"><div class="metric-label">Holdout accuracy</div><div class="big" id="accuracy">…</div><div class="hint">Validation quality gate</div></div>
+    <div class="card"><div class="metric-label">Drift status</div><div class="big" id="drift">…</div><div class="hint" id="driftHint">Waiting for samples</div></div>
+    <div class="card"><div class="metric-label">P95 latency</div><div class="big" id="latency">…</div><div class="hint">Last prediction window · ms</div></div>
+  </section>
+  <div class="main">
+    <div class="stack">
+      <section class="card"><div class="row"><h2>Feature drift · PSI</h2><span class="mini">Alert threshold <span id="threshold">0.25</span></span></div><div id="driftBars" class="empty">Not enough predictions for a reliable drift estimate.</div><div class="rule mini" id="sampleInfo">Loading telemetry...</div></section>
+      <section class="card"><div class="row"><h2>Recent incidents</h2><span class="mini">Latest first</span></div><div class="log" id="incidents"><div class="empty">Loading incidents...</div></div></section>
+      <section class="card"><div class="row"><h2>Model history</h2><span class="mini">Validation metrics and deployment status</span></div><div class="log" id="models"></div></section>
+    </div>
+    <div class="stack">
+      <section class="card"><h2>Try a prediction</h2><form id="predictForm"><div class="grid2"><div><label for="sl">Amount (USD)</label><input id="sl" type="number" step="any" min="0" value="65" required></div><div><label for="sw">Hour (0–23)</label><input id="sw" type="number" step="any" min="0" value="12" required></div><div><label for="pl">Merchant risk (0–1)</label><input id="pl" type="number" step="any" min="0" value="0.15" required></div><div><label for="pw">International (0 or 1)</label><input id="pw" type="number" step="any" min="0" value="0" required></div></div><div class="grid2"><div><label for="tx">Transactions in 24h</label><input id="tx" type="number" min="0" step="1" value="2" required></div><div><label for="age">Account age (days)</label><input id="age" type="number" min="0" step="1" value="650" required></div></div><div class="actions"><button type="submit">Run prediction</button></div></form><div class="rule mini" id="predictionResult">Predictions are recorded for ongoing monitoring.</div></section>
+      <section class="card"><h2>Recovery operations</h2><p class="mini">Admin operations require <code>X-Admin-Key</code>. This key stays in the browser page only and is not stored by this dashboard.</p><label for="apiKey">Admin API key</label><input id="apiKey" type="password" autocomplete="off" placeholder="Enter key from HELIOS_ADMIN_API_KEY"><div class="actions"><button class="secondary" data-command="/admin/recovery-cycle">Run diagnosis</button><button class="secondary" data-command="/admin/verify">Verify</button><button class="secondary" data-command="/admin/retrain">Retrain</button><button class="secondary" data-command="/admin/rollback">Rollback</button></div><div class="rule mini" id="actionResult">Automatic monitoring also runs on the configured interval.</div></section>
+      <section class="card"><h2>Prediction distribution</h2><div id="predictionPattern" class="empty">No predictions yet.</div><div class="rule mini" id="resources"></div></section>
+    </div>
+  </div>
+  <div class="footer">HELIOS demo · Inspect all routes in <a href="/docs" style="color:var(--sun)">OpenAPI docs</a>. Auto-recovery requires labeled feedback for quality-based decisions; unresolved issues stay visible.</div>
+</div><div id="toast" role="status"></div>
+<script>
+  const el=id=>document.getElementById(id);
+  function clean(text){return String(text).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');}
+  const fmt=(n,s=2)=>n==null?'N/A':Number(n).toFixed(s);
+  async function api(path,options={}) {const res=await fetch(path,options);const body=await res.json();if(!res.ok)throw Error(body.detail||`HTTP ${res.status}`);return body;}
+  function message(msg){el('toast').textContent=msg;el('toast').style.display='block';setTimeout(()=>el('toast').style.display='none',5000);}
+  async function refresh(){
+    try{
+      const [health,mon,models,incidents]=await Promise.all([api('/health'),api('/monitor'),api('/models'),api('/incidents?limit=12')]);
+      el('serverStatus').textContent=health.status==='healthy'?'● Pipeline healthy':'● '+health.status;
+      el('version').textContent=mon.active_version?'v'+mon.active_version:'None';el('accuracy').textContent=fmt(mon.validation_accuracy*100,1)+'%';
+      el('latency').textContent=mon.latency_p95_ms===null?'N/A':fmt(mon.latency_p95_ms,2);
+      const d=mon.drift;el('threshold').textContent=d.threshold;el('drift').textContent=d.ready?(d.drift_detected?'Alert':'Normal'):'Pending';el('drift').style.color=d.drift_detected?'var(--rose)':'var(--txt)';
+      el('driftHint').textContent=d.ready?`${d.sample_count} recent predictions`:`${d.sample_count} samples received`;
+      el('sampleInfo').textContent=`${mon.prediction_count_window} recent predictions · ${mon.feedback_count_active_window} labeled outcomes for active version · Live fraud recall: ${mon.fraud_recall_active_window==null?'unavailable':fmt(mon.fraud_recall_active_window*100,1)+'%'} · Live accuracy: ${mon.accuracy_active_window==null?'unavailable':fmt(mon.accuracy_active_window*100,1)+'%'}`;
+      el('driftBars').innerHTML=d.ready?Object.entries(d.features).map(([k,v])=>`<div class="barrow"><span>${clean(k.replaceAll('_',' '))}</span><div class="barbg"><div class="bar" style="width:${Math.min(100,v/Math.max(d.threshold,0.001)*60)}%;background:${v>=d.threshold?'var(--rose)':''}"></div></div><strong>${fmt(v,3)}</strong></div>`).join(''):'<div class="empty">More samples needed for PSI calculation.</div>';
+      el('incidents').innerHTML=incidents.incidents.length?incidents.incidents.map(i=>`<div class="entry"><div class="row"><strong>${clean(i.category.replaceAll('_',' '))}</strong><span class="badge ${i.status==='resolved'?'':'alert'}">${clean(i.status)}</span></div><div class="mini">${clean(i.root_cause)} · Action: ${clean(i.action)}</div></div>`).join(''):'<div class="empty">No incidents recorded.</div>';
+      el('models').innerHTML=models.versions.length?models.versions.map(v=>`<div class="entry row"><span><strong>Model v${v.version}</strong><span class="mini"> · ${clean(v.source)}</span><div class="mini">Validation accuracy: ${fmt(v.metrics.accuracy*100,1)}% · Fraud recall: ${fmt(v.metrics.fraud_recall*100,1)}% · ${clean(v.created_at.slice(0,19))}</div></span><span class="badge ${v.is_champion?'':'alert'}">${v.is_champion?'Champion':'Archived'}</span></div>`).join(''):'<div class="empty">No models.</div>';
+      const pred=mon.prediction_patterns,total=Object.values(pred).reduce((a,b)=>a+b,0);
+      el('predictionPattern').innerHTML=total?Object.entries(pred).map(([k,n])=>`<div class="barrow"><span>${clean(k)}</span><div class="barbg"><div class="bar" style="width:${n/total*100}%"></div></div><strong>${n}</strong></div>`).join(''):'<div class="empty">No predictions yet.</div>';
+      el('resources').textContent=`Process memory: ${fmt(mon.resources.rss_mb,1)} MB · System memory: ${fmt(mon.resources.system_memory_percent,1)}%`;
+    }catch(e){el('serverStatus').textContent='● Status unavailable';console.error(e);}
+  }
+  el('predictForm').addEventListener('submit',async e=>{
+    e.preventDefault();try{const b={amount:+el('sl').value,hour:+el('sw').value,merchant_risk:+el('pl').value,international:+el('pw').value,transactions_24h:+el('tx').value,account_age_days:+el('age').value};const p=await api('/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});el('predictionResult').textContent=`${p.class_name} · confidence ${fmt(p.confidence*100,1)}% · model v${p.model_version} · ID ${p.prediction_id}`;refresh();}catch(ex){message(ex.message);}
+  });
+  document.querySelectorAll('[data-command]').forEach(b=>b.addEventListener('click',async()=>{
+    const key=el('apiKey').value;if(!key)return message('Enter the admin API key first.');b.disabled=true;
+    try{const data=await api(b.dataset.command,{method:'POST',headers:{'X-Admin-Key':key}});el('actionResult').textContent=JSON.stringify(data).slice(0,700);message('Operation completed. Inspect the result below.');refresh();}catch(ex){message(ex.message)}finally{b.disabled=false;}
+  }));
+  refresh();setInterval(refresh,15000);
+</script></body></html>

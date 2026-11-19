@@ -1,0 +1,16 @@
+services:
+  helios:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      HELIOS_DATA_DIR: /app/runtime
+      HELIOS_ADMIN_API_KEY: ${HELIOS_ADMIN_API_KEY:?Set HELIOS_ADMIN_API_KEY in your environment or .env file}
+      HELIOS_AUTO_MONITOR: "true"
+      HELIOS_MONITOR_INTERVAL_SECONDS: "60"
+      HELIOS_DEMO_MODE: "false"
+    volumes:
+      - helios-data:/app/runtime
+    restart: unless-stopped
+volumes:
+  helios-data:
