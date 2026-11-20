@@ -1,0 +1,51 @@
+{
+  "timestamp_utc": "2026-11-20T05:19:25.073531+00:00",
+  "new_batch_file": "data/new_fraud_batch.csv",
+  "new_batch_size": 240,
+  "target_distribution": {
+    "legitimate_0": 195,
+    "fraud_1": 45
+  },
+  "new_batch_training_rows": 179,
+  "new_batch_evaluation_rows": 61,
+  "existing_training_rows": 1200,
+  "combined_training_rows": 1379,
+  "champion_version": 1,
+  "champion_metrics": {
+    "accuracy": 0.95082,
+    "fraud_precision": 1.0,
+    "fraud_recall": 0.75,
+    "fraud_f1": 0.85714,
+    "false_positives": 0,
+    "false_negatives": 3,
+    "true_positives": 9,
+    "true_negatives": 49,
+    "fraud_prevalence": 0.19672
+  },
+  "candidate_backend": "sklearn",
+  "candidate_metrics": {
+    "accuracy": 0.95082,
+    "fraud_precision": 1.0,
+    "fraud_recall": 0.75,
+    "fraud_f1": 0.85714,
+    "false_positives": 0,
+    "false_negatives": 3,
+    "true_positives": 9,
+    "true_negatives": 49,
+    "fraud_prevalence": 0.19672
+  },
+  "candidate_file": "runtime/assessment/candidate_model.json",
+  "quality_gate": {
+    "checks": {
+      "min_accuracy_90_percent": true,
+      "min_fraud_recall_65_percent": true,
+      "accuracy_not_worse_than_champion_by_3_points": true,
+      "fraud_recall_not_below_champion": true
+    },
+    "decision": "ELIGIBLE_FOR_PROMOTION",
+    "metric_justification": "Fraud recall is essential because missing a fraudulent transaction is costly; accuracy and non-regression avoid promoting a broadly weaker model.",
+    "auto_promotion": false
+  },
+  "mlflow": "Not configured (optional)",
+  "champion_version_after": 1
+}

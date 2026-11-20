@@ -6,3 +6,4 @@ __pycache__/
 runtime/
 *.sqlite3
 .coverage
+# New batch assessment evidence; keep report artifacts local

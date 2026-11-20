@@ -1,0 +1,12 @@
+HELIOS MODEL MONITORING & RETRAINING ASSESSMENT
+TASK A - New batch validation: PASS
+Batch rows: 240; legitimate: 195; fraud: 45
+New batch train/evaluation: 179 / 61 (held-out to prevent leakage)
+TASK B - Champion model version: 1
+Champion metrics: {"accuracy": 0.95082, "fraud_precision": 1.0, "fraud_recall": 0.75, "fraud_f1": 0.85714, "false_positives": 0, "false_negatives": 3, "true_positives": 9, "true_negatives": 49, "fraud_prevalence": 0.19672}
+TASK C - Candidate trained on 1379 rows, artifact: runtime/assessment/candidate_model.json
+Candidate metrics: {"accuracy": 0.95082, "fraud_precision": 1.0, "fraud_recall": 0.75, "fraud_f1": 0.85714, "false_positives": 0, "false_negatives": 3, "true_positives": 9, "true_negatives": 49, "fraud_prevalence": 0.19672}
+TASK D - Gate checks: {"min_accuracy_90_percent": true, "min_fraud_recall_65_percent": true, "accuracy_not_worse_than_champion_by_3_points": true, "fraud_recall_not_below_champion": true}
+Decision: ELIGIBLE_FOR_PROMOTION; champion remains version 1
+Metric choice: prioritize fraud recall; require adequate accuracy and no degradation versus champion.
+MLflow: Not configured (optional)
